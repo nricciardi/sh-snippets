@@ -1,0 +1,225 @@
+{
+	// Place your snippets for shellscript here. Each snippet is defined under a snippet name and has a prefix, body and 
+	// description. The prefix is what is used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. Placeholders with the 
+	// same ids are connected.
+	// Example:
+	// "Print to console": {
+	// 	"prefix": "log",
+	// 	"body": [
+	// 		"console.log('$1');",
+	// 		"$2"
+	// 	],
+	// 	"description": "Log output to console"
+	// }
+
+	"Parameters greater than": {
+		"prefix": "paramsgreaterthen",
+		"body": [
+			"if test \\$# -lt $1; then",
+			"\techo \"E: i parametri devono essere almeno $1\"",
+			"\texit 1",
+			"fi"
+		]
+	},
+
+	"Parameters equals to": {
+		"prefix": "paramsequalsto",
+		"body": [
+			"if test \\$# -ne $1; then",
+			"\techo \"E: i parametri devono essere $1\"",
+			"\texit 1",
+			"fi"
+		]
+	},
+
+	"Check number": {
+		"prefix": "checknum",
+		"body": [
+			"case $1 in",
+			"\t*[!0-9]*)",
+			"\t\techo \"E: $1 deve essere un numero\"",
+			"\t\texit 1",
+			"\t\t;;",
+			"\t*)",
+			"\t\tif test $1 -eq 0; then",
+			"\t\t\techo \"E: $1 non può essere 0\"",
+			"\t\t\texit 1",
+			"\t\tfi",
+			"",
+			"\t\t$2",
+			"",
+			"\t\t;;",
+			"esac"
+		]
+	},
+
+	"Check path": {
+		"prefix": "checkpath",
+		"body": [
+			"case $1 in",
+			"\t/*)",
+			"\t\t# $1 è un percorso assoluto",
+			"",
+			"\t\t$2",
+			"",
+			"\t\t;;",
+			"\t*/*)",
+			"\t\t# $1 è un percorso relativo",
+			"",
+			"\t\t$3",
+			"",
+			"\t\t;;",
+			"\t*)",
+			"\t\t# per esclusione $1 è un percorso relativo semplice",
+			"",
+			"\t\t$4",
+			"",
+			"\t\t;;",
+			"esac"
+		]
+	},
+
+	"Check one char": {
+		"prefix": "checkchar",
+		"body": [
+			"case $1 in",
+			"\t?)",
+			"\t\t$2",
+			"",
+			"\t\t;;",
+			"\t*)",
+			"\t\techo \"E: $1 deve essere un singolo carattere\"",
+			"\t\texit 1",
+			"\t\t;;",
+			"esac"
+		]
+	},
+
+	"Check only minusc": {
+		"prefix": "checkonlymin",
+		"body": [
+			"if test `grep -E '[A-Z]|[0-9]' $1 | wc -l` -eq 0; then",
+			"\t$0",
+			"fi"
+		]
+	},
+
+	"Check num in all lines": {
+		"prefix": "checknuminlines",
+		"body": [
+			"if test `grep [0-9] $1 | wc -l` -eq `wc -l < $1`; then\t\t# wc -l conta gli \n... aggiungi 1 per il numero vero di linee",
+			"\t$0",
+			"fi"
+		]
+	},
+
+	"Check if there is a num": {
+		"prefix": "checkatleastnum",
+		"body": [
+			"if test `grep [0-9] $1 | wc -l` -gt 0; then",
+			"\t$0",
+			"fi"
+		]
+	},
+
+	"Check num of lines": {
+		"prefix": "checkNlines",
+		"body": [
+			"if test `wc -l < $1` $2 $3; then",
+			"\t$0",
+			"fi"
+		]
+	},
+
+
+
+	"Export pwd": {
+		"prefix": "exportpwd",
+		"body": [
+			"PATH=`pwd`:\\$PATH",
+			"export PATH"
+		]
+	},
+
+	"Shabang": {
+		"prefix": "shabang",
+		"body": [
+			"#!/bin/sh"
+		]
+	},
+
+	"Go in subdirectory": {
+		"prefix": "subdir",
+		"body": [
+			"for file in *; do\t# scorro tutti i file presenti nella cartella corrente",
+			"\tif test -d \\$file -a -x \\$file; then\t# verifico siano una directory e che sia traversabile",
+			"",
+			"\t\t\\$0",
+			"\tfi",
+			"",
+			"done"
+		]
+	},
+
+	"For file": {
+		"prefix": "forfile",
+		"body": [
+			"for file in *; do",
+			"\tif test -f \\$file; then",
+			"\t\t$1",
+			"\tfi",
+			"done"
+		]
+	},
+
+	"For dir": {
+		"prefix": "fordir",
+		"body": [
+			"for file in *; do",
+			"\tif test -d \\$file; then",
+			"\t\t$1",
+			"\tfi",
+			"done"
+		]
+	},
+
+	"Get line": {
+		"prefix": "getline",
+		"body": [
+			"theLine=`head -n $2 | tail -n 1`"
+		]
+	},
+
+	"Read num": {
+		"prefix": "readnum",
+		"body": [
+			"while test 1 -eq 1; do",
+			"",
+			"\techo -n \"Inserisci qui il numero: \"",
+			"\tread ${1:num}",
+			"",
+			"\tcase \\$${1:num} in",
+			"\t\t*[!0-9]*)",
+			"\t\t\techo \"E: \\$${1:num} deve essere un numero\"",
+			"\t\t\tcontinue",
+			"\t\t\t;;",
+			"\t\t*)",
+			"\t\t\tif test \\$${1:num} -eq 0; then",
+			"\t\t\t\techo \"E: \\$${1:num} non può essere 0\"",
+			"\t\t\t\tcontinue",
+			"\t\t\tfi",
+			"",
+			"\t\t\tcorretto=1",
+			"",
+			"\t\t\t$2",
+			"",
+			"",
+			"\t\t\tbreak",
+			"\t\t\t;;",
+			"\tesac",
+			"done"
+		]
+	}
+
+}
