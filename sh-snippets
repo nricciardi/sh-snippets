@@ -2,6 +2,7 @@
 	"Parameters greater than": {
 		"prefix": "paramsgreaterthen",
 		"body": [
+			"# controllo lasco sui parametri",
 			"if test \\$# -lt $1; then",
 			"\techo \"E: i parametri devono essere almeno $1\"",
 			"\texit 1",
@@ -12,6 +13,7 @@
 	"Parameters equals to": {
 		"prefix": "paramsequalsto",
 		"body": [
+			"# controllo stringente sui parametri",
 			"if test \\$# -ne $1; then",
 			"\techo \"E: i parametri devono essere $1\"",
 			"\texit 1",
@@ -22,6 +24,7 @@
 	"Check number": {
 		"prefix": "checknum",
 		"body": [
+			"# controllo che il valore sia un numero",
 			"case $1 in",
 			"\t*[!0-9]*)",
 			"\t\techo \"E: $1 deve essere un numero\"",
@@ -43,6 +46,7 @@
 	"Check path": {
 		"prefix": "checkpath",
 		"body": [
+			"# controllo che il valore sia un percorso valido",
 			"case $1 in",
 			"\t/*)",
 			"\t\t# $1 è un percorso assoluto",
@@ -69,6 +73,7 @@
 	"Check one char": {
 		"prefix": "checkchar",
 		"body": [
+			"# controllo che il valore sia un singolo carattere",
 			"case $1 in",
 			"\t?)",
 			"\t\t$2",
@@ -85,7 +90,8 @@
 	"Check only minusc": {
 		"prefix": "checkonlymin",
 		"body": [
-			"case `cat $1` in",
+			"# controllo che ci siano solo caratteri",
+			"case `cat < ${1:\\$file}` in",
 			"*[!a-z]*)",
 			"\t$2",
 			"\t;;",
@@ -99,6 +105,7 @@
 	"Check num in all lines": {
 		"prefix": "checknuminlines",
 		"body": [
+			"# controllo che il numero di linee con un numero sia uguale al numero di linee del file",
 			"if test `grep [0-9] $1 | wc -l` -eq `wc -l < $1`; then\t\t# wc -l conta gli \n... aggiungi 1 per il numero vero di linee",
 			"\t$0",
 			"fi"
@@ -106,9 +113,9 @@
 	},
 
 	"Check if there is a num": {
-		"prefix": "checkatleastnum",
+		"prefix": "checkthereisnum",
 		"body": [
-			"if test `grep [0-9] $1 | wc -l` -gt 0; then",
+			"if test `grep [0-9] < $1 > /dev/null | wc -l` -gt 0; then",
 			"\t$0",
 			"fi"
 		]
@@ -127,6 +134,7 @@
 	"Export pwd": {
 		"prefix": "exportpwd",
 		"body": [
+			"# esporto la directory corrente",
 			"PATH=`pwd`:\\$PATH",
 			"export PATH"
 		]
@@ -145,7 +153,7 @@
 			"for file in *; do\t# scorro tutti i file presenti nella cartella corrente",
 			"\tif test -d \\$file -a -x \\$file; then\t# verifico siano una directory e che sia traversabile",
 			"",
-			"\t\t\\$0",
+			"\t\t\\$0 ${1:\\$fileTmp}",
 			"\tfi",
 			"",
 			"done"
@@ -184,6 +192,7 @@
 	"Read num": {
 		"prefix": "readnum",
 		"body": [
+			"# continuo a chiedere un numero all'utente fin quando esso non rispetta le richieste",
 			"while test 1 -eq 1; do",
 			"",
 			"\techo -n \"Inserisci qui il numero: \"",
@@ -200,7 +209,6 @@
 			"\t\t\t\tcontinue",
 			"\t\t\tfi",
 			"",
-			"\t\t\tcorretto=1",
 			"",
 			"\t\t\t$2",
 			"",
@@ -208,6 +216,85 @@
 			"\t\t\tbreak",
 			"\t\t\t;;",
 			"\tesac",
+			"done"
+		]
+	},
+
+	"Create tmp file": {
+		"prefix": "createtmpfile",
+		"body": [
+			"fileTmp=\"/tmp/fileTmp\\$$\"",
+			"> \\$fileTmp\t# creo e azzero il file temporaneo"
+		]
+	},
+
+	"Create FRC count lv": {
+		"prefix": "createFCRcountLV",
+		"body": [
+			"#!/bin/sh",
+			"",
+			"fileTmp=\\$1\t  # file temporaneo",
+			"G=\\$2\t\t\t# path gerarchia",
+			"LV=\\$3\t\t   # (int) livello corrente, quando si richiama il file FCR dovrebbe essere passato come il livello da cui far partire il conteggio della gerarchia",
+			"DO=\\$4\t\t   # (int) selettore di livello, faccio qualcosa se arrivo a questo livello",
+			"",
+			"cd \\$G",
+			"",
+			"",
+			"fileWithLV=\\$fileTmp\t # file da usare per memorizzare il livello massimo della gerarchia",
+			"",
+			"# ======= calcolo e salvataggio del livello nella gerarchia =====",
+			"nFile=0",
+			"nDir=0",
+			"for element in *; do\t\t# conto il numero di file e dir in G",
+			"\t",
+			"\tif test -f \\$element; then",
+			"\t\tnFile=`expr \\$nFile + 1`",
+			"\tfi",
+			"",
+			"\tif test -d \\$element -a -x \\$element; then",
+			"\t\tnDir=`expr \\$nDir + 1`",
+			"\tfi",
+			"done",
+			"",
+			"if test \\$nDir -eq 0; then",
+			"\t",
+			"\tif test \\$nFile -eq 0; then\t  # se non trovo file non vale come livello",
+			"\t\tLV=`expr \\$LV - 1`\t   # posso manipolare LV in quanto sono sicuro che non si sono directory",
+			"\tfi",
+			"",
+			"\tread memLV < \\$fileWithLV",
+			"",
+			"\t# se il mumero di livelli della gerarchia corrente è maggiore",
+			"\t# di quelli già memorizzati sovrascrivo",
+			"\tif test \\$LV -gt \\$memLV; then",
+			"\t\t",
+			"\t\techo \\$LV > \\$fileWithLV",
+			"",
+			"\tfi\t ",
+			"fi",
+			"# ======================",
+			"",
+			"# echo \"D: lv. \\$LV >> `pwd`\"; ls",
+			"",
+			"if test \\$DO; then\t   # se il parametro di fare qualcosa in un livello è settato faccio qualcosa",
+			"\t",
+			"\tif test \\$LV -eq \\$DO; then",
+			"\t\techo \"D: inizio la manipolazione al livello \\$DO >> \\$G\"",
+			"",
+			"\t\t# TODO\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t  !!!!!",
+			"\t\t$0",
+			"",
+			"\tfi",
+			"fi",
+			"",
+			"# c'è almeno una directory traversabile",
+			"for file in *; do\t# scorro tutti i file presenti nella cartella corrente",
+			"\tif test -d \\$file -a -x \\$file; then\t# verifico siano una directory e che sia traversabile",
+			"",
+			"\t\t\\$0 \\$fileTmp \"`pwd`/\\$file\" `expr \\$LV + 1` \\$DO\t\t# si incrementa a priori la gerarchia, poi si effettua il ricalcolo nella parte iniziale dello script",
+			"\tfi",
+			"",
 			"done"
 		]
 	}
