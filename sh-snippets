@@ -153,7 +153,7 @@
 			"for file in *; do\t# scorro tutti i file presenti nella cartella corrente",
 			"\tif test -d \\$file -a -x \\$file; then\t# verifico siano una directory e che sia traversabile",
 			"",
-			"\t\t\\$0 ${1:\\$fileTmp}",
+			"\t\t\\$0 ${1:\\$fileTmp} \"`pwd`/\\$file\"",
 			"\tfi",
 			"",
 			"done"
@@ -167,6 +167,16 @@
 			"\tif test -f \\$file -a -r \\$file; then",
 			"\t\t$1",
 			"\tfi",
+			"done"
+		]
+	},
+
+	"For param": {
+		"prefix": "forparam",
+		"body": [
+			"# scorro tutti i paramtri",
+			"for p in \\$*; do",
+			"\t$0",
 			"done"
 		]
 	},
