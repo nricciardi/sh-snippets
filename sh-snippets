@@ -31,6 +31,7 @@
 			"\t\texit 1",
 			"\t\t;;",
 			"\t*)",
+			"\t\t# controllo se strettamente positivo",
 			"\t\tif test $1 -eq 0; then",
 			"\t\t\techo \"E: $1 non può essere 0\"",
 			"\t\t\texit 1",
@@ -99,6 +100,18 @@
 			"\t$3",
 			"\t;;",
 			"esac"
+		]
+	},
+
+	"Check if not ex dir": {
+		"prefix": "checkifnotexdir",
+		"body": [
+			"# restituisco un errore se non è una directory (-d) traversabile (-x)",
+			"if test ! -d ${1:\\$file} -o ! -x ${1:\\$file}; then",
+			"\techo \"E: ${1:\\$file} deve essere una directory traversabile\"",
+			"\texit 1",
+			"fi",
+			"$0"
 		]
 	},
 
@@ -306,6 +319,30 @@
 			"\tfi",
 			"",
 			"done"
+		]
+	},
+
+	"getlastparams": {
+		"prefix": "getlastparams",
+		"body": [
+			"count=0\t# contatore per recuperare gli ultimi parametri",
+			"params=\t# i primi parametri",
+			"others=\t# gli altri parametri",
+			"nOthers=${1:1}\t# numero di parametri finali da recuperare",
+			"max=`expr \\$# - \\$nOthers`",
+			"for p in \\$*; do",
+			"",
+			"\tif test \\$count -lt \\$max; then",
+			"\t\tparams=\"\\$params\\$p \"",
+			"\t\tshift",
+			"",
+			"\telse",
+			"\t\tothers=\"\\$others \\$p\"",
+			"\tfi",
+			"",
+			"\tcount=`expr \\$count + 1`",
+			"done",
+			"$0"
 		]
 	}
 
