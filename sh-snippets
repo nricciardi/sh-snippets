@@ -247,7 +247,11 @@
 		"prefix": "createtmpfile",
 		"body": [
 			"fileTmp=\"/tmp/fileTmp\\$$\"",
-			"> \\$fileTmp\t# creo e azzero il file temporaneo"
+			"> \\$fileTmp\t# creo e azzero il file temporaneo",
+			"",
+			"$0",
+			"",
+			"rm \\$fileTmp"
 		]
 	},
 
