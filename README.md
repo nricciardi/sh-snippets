@@ -1,4 +1,5 @@
 # Bourne Shell Snippets for VS Code
+Ricordati di mettermi una stellina :)
 
 ## Getting Started
 
